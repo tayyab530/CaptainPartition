@@ -16,12 +16,13 @@ using namespace std;
 int main()
 {
     
-    char diskName[] = "/dev/sda1";
+    char diskNameR[] = "/dev/sda1";
+    char diskNameW[] = "/home/cslab3/CaptainPartition/dumb.bin";
     unsigned int blockSize = 0;
-    std::string diskError = std::string() + diskName + ": ";
+    std::string diskError = std::string() + diskNameR + ": ";
 
     // getting blocksize
-    int fd = open(diskName, O_RDWR);
+    int fd = open(diskNameR, O_RDWR);
     if (fd < 0)
         cout << "can not open /dev/sda1 \n" ;
     int rc = ioctl(fd, BLKSSZGET, &blockSize);
@@ -33,7 +34,7 @@ int main()
     // close(fd);
 
     // Open device file
-    // std::ifstream disk(diskName, std::ios_base::binary);
+    // std::ifstream disk(diskNameR, std::ios_base::binary);
     // size_t blockSize;
     // int fd = disk.open();
 
@@ -52,19 +53,43 @@ int main()
 
     // cout << "Seeked!\n";
     // Read in one sector
-    char buffer[512];
+
+    int numberOfSectors = blockSize;
+    int extentOfRead = 0;
+    char buffer[numberOfSectors];
     int nread;
     // disk.read(&buffer[0], 512);
     // if (!disk)
     //     throw(std::runtime_error(diskError + std::strerror(errno)));
 
     int i = 0;
-    
-    while (nread = read(fd,&buffer,512) > 0)
+
+    // std::ofstream dumbFile ("/home/cslab3/CaptainPartition/dumb.bin",std::ofstream::binary);
+
+    int fdW = open(diskNameW, O_RDWR);
+    if (fdW < 0)
+        cout << "can not open /home/cslab3/CaptainPartition/Dumb.bin \n" ;
+    else
+        cout << diskNameW << " opened" << endl;
+
+    while (nread = read(fd,&buffer,numberOfSectors) > extentOfRead)
     {
         cout << buffer[i];
         i++;
+        write(fdW,buffer,sizeof(char));
     }
+
+    //read stored dumb data
+
+    // while (nread = read(fdW,&buffer,numberOfSectors) > 0)
+    // {
+    //     cout << buffer[i];
+    //     i++;
+    // }
+
+
+    
+
     
     // for (int i = 0; i != 512; ++i)
     // {
